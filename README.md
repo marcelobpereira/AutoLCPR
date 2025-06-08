@@ -1,5 +1,4 @@
 <h1 align="center">📊 AutoLCPR</h1>
-
 ## Descrição
 Projeto de automação criado para construir relatorios de receitas e despesas dos produtores rurais cadastrados no MS. O sistema deve:
 </br> [ ] Construir uma tabela com receitas e despesas mensais;
