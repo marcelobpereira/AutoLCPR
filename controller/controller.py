@@ -1,6 +1,6 @@
-from model import Produtor
-from model import Rebanho
-from model import Registro
+from model.Produtor import Produtor
+from model.Rebanho import Rebanho
+from model.Registro import Registro
 
 class Controller:
     """
@@ -16,16 +16,9 @@ class Controller:
 
     produtores = []
 
-    def __init__(self, model, view):
-        """
-        Inicializa uma nova instância do Controller.
-
-        Args:
-            model: Instância do modelo associado.
-            view: Instância da view associada.
-        """
-        self.model = model
-        self.view = view
+    def __init__(self):
+        """ Inicializa o controlador com uma lista vazia de produtores. """
+        self.produtores = []    
 
     # Gestão de Produtores
 
