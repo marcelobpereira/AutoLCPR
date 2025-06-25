@@ -1,25 +1,27 @@
 from controller.Controller import Controller
-from model.Produtor import Produtor
+from model import*
 
 # Cria uma instância do controlador
 controller = Controller()
+#CREATE
+## Criar novo item com dados validos
+## Criar novo item com dados invalidos (falha)
+## Criar novo item sem campos obrigatórios (falha)
+## Criar novo item com dados duplicados (falha)
 
-#testes de insercoes
-def test_insercao_produtor():
-    # Cria um produtor válido
-    produtor = Produtor(1, "João da Silva", None, [], [])
-    controller.produtores.append(produtor)
-    # Verifica se o produtor foi adicionado corretamente
-    assert len(controller.produtores) == 1 
-def test_insercao_produtor_invalido():
-    # Tenta criar um produtor inválido (sem nome)
-    try:
-        produtor_invalido = Produtor(2, "", None, [], [])
-        controller.produtores.append(produtor_invalido)
-    except ValueError as e:
-        assert str(e) == "Nome do produtor não pode ser vazio."
-#testes de exclusoes
+#READ
+## Buscar item existente
+## Buscar item inexistente (falha)
+## Listar todos os itens
+## Listar itens filtrados por atributo
 
-#testes de consultas
+#UPDATE
+## Atualizar item existente com dados validos
+## Atualizar item existente com dados invalidos (falha)
+## Atualizar item inexistente (falha)
+## Atualizar campos fixos (como ID) (falha)
 
-#testes de atualizacoes
+#DELETE
+## Remover item existente
+## Remover item inexistente (falha)
+## Garantia de que o item foi removido
