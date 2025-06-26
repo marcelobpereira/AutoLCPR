@@ -1,3 +1,4 @@
+import pytest
 from controller.Controller import Controller
 from model.Produtor import Produtor
 from model.Registro import Registro
@@ -7,11 +8,12 @@ from model.Rebanho import Rebanho
 controller = Controller()
 #CREATE
 ## Criar novo item com dados validos
-def test_criar_produtor_valido():
-    produtor = Produtor(1, "Produtor Teste", None, [], [])
-    resultado = controller.criar_produtor(produtor)
-    assert resultado == "Produtor criado com sucesso"
-def test_criar_registro_valido():
+
+def test_criar_produtor_valido(): #OK
+    resultado = controller.criar_produtor(1, "Produtor Teste", [], [], [])
+    assert resultado == True
+
+def test_criar_registro_valido(): 
     registro = Registro(1, "Registro Teste", "2023-10-01", 1, 1)
     resultado = controller.criar_registro(registro)
     assert resultado == "Registro criado com sucesso"
@@ -20,12 +22,16 @@ def test_criar_rebanho_valido():
     resultado = controller.criar_rebanho(rebanho)
     assert resultado == "Rebanho criado com sucesso"
 ## Criar novo item com dados invalidos (falha)
-def test_criar_produtor_invalido():
-    produtor = Produtor(1, "", None, [], [])  # Nome vazio
-    resultado = controller.criar_produtor(produtor)
-    assert resultado == "Erro: Dados inválidos para criar produtor"
+def test_criar_produtor_invalido(): #OK
+    with pytest.raises(ValueError) as exc_info:
+        controller.criar_produtor(1, "", [], [], [])
+    assert str(exc_info.value) == "Erro: Dados inválidos para criar produtor"
+
 def test_criar_registro_invalido():
-    registro = Registro(1, "", "2023-10-01", 1, 1)  # Nome vazio
+    registro = Registro("", "Descricao teste", "2023-10-01", 1, 1)  # numero vazio
+    resultado = controller.criar_registro(registro)
+    assert resultado == "Erro: Dados inválidos para criar registro"
+    registro = Registro("123.456", "", "2023-10-01", 1, 1)  # numero vazio
     resultado = controller.criar_registro(registro)
     assert resultado == "Erro: Dados inválidos para criar registro"
 def test_criar_rebanho_invalido():
@@ -34,9 +40,10 @@ def test_criar_rebanho_invalido():
     assert resultado == "Erro: Dados inválidos para criar rebanho"
 ## Criar novo item sem campos obrigatórios (falha)
 def test_criar_produtor_sem_campos_obrigatorios():
-    produtor = Produtor(None, "Produtor Teste", None, [], [])  # id ausente
-    resultado = controller.criar_produtor(produtor)
-    assert resultado == "Erro: Dados inválidos para criar produtor"
+    with pytest.raises(ValueError) as exc_info:
+        controller.criar_produtor(None, "Produtor Teste", [], [], [])
+    assert str(exc_info.value) == "Erro: Dados inválidos para criar produtor"
+
 def test_criar_registro_sem_campos_obrigatorios():
     registro = Registro(None, "Registro Teste", "2023-10-01", 1, 1)  # numero ausente
     resultado = controller.criar_registro(registro)
@@ -46,10 +53,12 @@ def test_criar_rebanho_sem_campos_obrigatorios():
     resultado = controller.criar_rebanho(rebanho)
     assert resultado == "Erro: Dados inválidos para criar rebanho"
 ## Criar novo item com dados duplicados (falha)
-def test_criar_produtor_duplicado():
-    produtor = Produtor(1, "Produtor Teste", None, [], [])  # ID já existe
-    resultado = controller.criar_produtor(produtor)
-    assert resultado == "Erro: Produtor já existe"
+def test_criar_produtor_duplicado(): #OK
+    controller.produtores.append(Produtor(1, "Produtor Teste", None, [], []))  # Adiciona um produtor para o teste
+    with pytest.raises(ValueError) as exc_info:
+        controller.criar_produtor(1, "Produtor Teste", [], [], [])
+    assert str(exc_info.value) == "Erro: Produtor já existe"
+
 def test_criar_registro_duplicado():
     registro = Registro(1, "Registro Teste", "2023-10-01", 1, 1)  # numero já existe
     resultado = controller.criar_registro(registro)
@@ -58,9 +67,13 @@ def test_criar_rebanho_duplicado():
     rebanho = Rebanho(1, "Rebanho Teste", 1, 100)  # inscricao já existe
     resultado = controller.criar_rebanho(rebanho)
     assert resultado == "Erro: Rebanho já existe"
+
+
 #READ
 ## Buscar item existente
-def test_buscar_produtor_existente():
+def test_buscar_produtor_existente(): #OK
+    produtor = Produtor(1, "Produtor Teste", None, [], [])
+    controller.produtores.append(produtor)  # Adiciona o produtor para o teste
     resultado = controller.buscar_produtor(1)
     assert resultado is not None and resultado.id == 1
 def test_buscar_registro_existente():
@@ -70,7 +83,7 @@ def test_buscar_rebanho_existente():
     resultado = controller.buscar_rebanho(1)
     assert resultado is not None and resultado.inscricao == 1
 ## Buscar item inexistente (falha)
-def test_buscar_produtor_inexistente():
+def test_buscar_produtor_inexistente(): #OK
     resultado = controller.buscar_produtor(999)  # ID inexistente
     assert resultado is None
 def test_buscar_registro_inexistente():
@@ -80,7 +93,9 @@ def test_buscar_rebanho_inexistente():
     resultado = controller.buscar_rebanho(999)  # inscricao inexistente
     assert resultado is None   
 ## Listar todos os itens
-def test_listar_produtores():
+def test_listar_produtores():#OK
+    produtor = Produtor(1, "Produtor Teste", None, [], [])
+    controller.produtores.append(produtor)  # Adiciona o produtor para o teste
     resultado = controller.listar_produtores()
     assert isinstance(resultado, list)  # Deve retornar uma lista
 def test_listar_registros():
@@ -90,12 +105,15 @@ def test_listar_rebanhos():
     resultado = controller.listar_rebanhos(1)  # ID do produtor
     assert isinstance(resultado, list)  # Deve retornar uma lista
 ## Listar itens filtrados por atributo
-def test_listar_produtores_filtrados():
-    # Devemos criar uma opcao de listar produtores filtrados por nome
-    resultado = controller.listar_produtores(1) # ID do produtor
+def test_listar_produtores_por_id():#OK
+    produtor = Produtor(1, "Produtor Teste", None, [], [])
+    controller.produtores.append(produtor)  # Adiciona o produtor para o teste
+    resultado = controller.listar_produtores_por_id(1)  # ID do produtor
     assert isinstance(resultado, list)  # Deve retornar uma lista
-def test_listar_produtores_filtrados_nome():
-    resultado = controller.listar_produtores("Produtor Teste")  # ID do produtor e nome
+def test_listar_produtores_filtrados_nome():#OK
+    produtor = Produtor(1, "Produtor Teste", None, [], [])
+    controller.produtores.append(produtor)  # Adiciona o produtor para o teste
+    resultado = controller.listar_produtores_por_nome("Produtor Teste")  # ID do produtor e nome
     assert isinstance(resultado, list)  # Deve retornar uma lista
 def test_listar_registros_filtrados():
     resultado = controller.listar_registros(1, 1)  # ID do produtor e tipo de registro
@@ -106,12 +124,15 @@ def test_listar_registros_data():
 def test_listar_rebanhos_filtrados():
     resultado = controller.listar_rebanhos(1, "28.123.123-1")  # ID do produtor e inscricao do rebanho
     assert isinstance(resultado, list)  # Deve retornar uma lista  
+
+
 #UPDATE
 ## Atualizar item existente com dados validos
-def test_atualizar_produtor_valido():
-    produtor = Produtor(1, "Produtor Atualizado", None, [], [])
-    resultado = controller.atualizar_produtor(produtor)
-    assert resultado == "Produtor atualizado com sucesso"
+def test_atualizar_produtor_valido(): #OK
+    produtor = Produtor(1, "Produtor Teste", None, [], [])
+    controller.produtores.append(produtor)  # Adiciona o produtor para o teste
+    resultado = controller.atualizar_produtor(1, "Produtor Atualizado", None, [], [])
+    assert resultado == True
 def test_atualizar_registro_valido():
     registro = Registro(1, "Registro Atualizado", "2023-10-02", 1, 1)
     resultado = controller.atualizar_registro(registro) 
@@ -121,10 +142,11 @@ def test_atualizar_rebanho_valido():
     resultado = controller.atualizar_rebanho(rebanho)
     assert resultado == "Rebanho atualizado com sucesso"    
 ## Atualizar item existente com dados invalidos (falha)
-def test_atualizar_produtor_invalido():
+def test_atualizar_produtor_invalido(): #OK
     produtor = Produtor(1, "", None, [], [])  # Nome vazio
-    resultado = controller.atualizar_produtor(produtor)
-    assert resultado == "Erro: Dados inválidos para atualizar produtor"
+    with pytest.raises(ValueError) as exc_info:
+        controller.atualizar_produtor(produtor) 
+    assert str(exc_info.value) == "Erro: Dados inválidos para atualizar produtor"
 def test_atualizar_registro_invalido():
     registro = Registro(1, "", "2023-10-02", 1, 1)  # Descricao vazia
     resultado = controller.atualizar_registro(registro)
@@ -134,10 +156,12 @@ def test_atualizar_rebanho_invalido():
     resultado = controller.atualizar_rebanho(rebanho)
     assert resultado == "Erro: Dados inválidos para atualizar rebanho"
 ## Atualizar item inexistente (falha)
-def test_atualizar_produtor_inexistente():
+def test_atualizar_produtor_inexistente():#OK
     produtor = Produtor(999, "Produtor Inexistente", None, [], [])  # ID inexistente
-    resultado = controller.atualizar_produtor(produtor)
-    assert resultado == "Erro: Produtor não encontrado"
+    with pytest.raises(ValueError) as exc_info:
+        controller.atualizar_produtor(produtor)
+    assert str(exc_info.value) == "Erro: Produtor não encontrado"
+
 def test_atualizar_registro_inexistente():
     registro = Registro(999, "Registro Inexistente", "2023-10-02", 1, 1)  # numero inexistente
     resultado = controller.atualizar_registro(registro)
@@ -148,15 +172,27 @@ def test_atualizar_rebanho_inexistente():
     assert resultado == "Erro: Rebanho não encontrado"
 ## Atualizar campos fixos (como ID) (falha)
 def test_atualizar_produtor_id_fixo():
-    produtor = Produtor(2, "Produtor Atualizando", None, [], [])  # Tentando mudar o ID
-    resultado = controller.atualizar_produtor(1, produtor)
-    assert resultado == "Erro: Não é permitido alterar o ID do produtor"
+    # 1) registra o produtor original com ID=1
+    original = Produtor(1, "Produtor Teste", None, [], [])
+    controller.produtores.append(original)
+
+    # 2) cria um novo Produtor (com ID diferente 2)
+    novo = Produtor(2, "Produtor Atualizado", None, [], [])
+
+    # 3) chama o método COM O PRODUTOR como segundo argumento
+    with pytest.raises(ValueError) as exc_info:
+        controller.atualizar_produtor(1, novo)
+
+    assert str(exc_info.value) == "Erro: Não é permitido alterar o ID do produtor"
 # Somente o produtor tem um campo fixo, os outros não tem.
+
+
 #DELETE
 ## Remover item existente
-def test_remover_produtor_existente():
-    resultado = controller.remover_produtor(1)
-    assert resultado == "Produtor removido com sucesso"
+def test_excluir_produtor_existente(): #OK
+    controller.produtores.append(Produtor(1, "Produtor Teste", None, [], []))  # Adiciona um produtor para o teste
+    resultado = controller.excluir_produtor(1)
+    assert resultado == True
 def test_remover_registro_existente():
     resultado = controller.remover_registro(1, 1)  # ID do produtor e numero do registro
     assert resultado == "Registro removido com sucesso"
@@ -164,9 +200,11 @@ def test_remover_rebanho_existente():
     resultado = controller.remover_rebanho(1, "28.123.123-1")  # ID do produtor e inscricao do rebanho
     assert resultado == "Rebanho removido com sucesso"
 ## Remover item inexistente (falha)
-def test_remover_produtor_inexistente():
-    resultado = controller.remover_produtor(999)  # ID inexistente
-    assert resultado == "Erro: Produtor não encontrado"
+def test_excluir_produtor_inexistente(): #OK
+    controller.produtores.append(Produtor(1, "Produtor Teste", None, [], []))  # Adiciona um produtor para o teste
+    with pytest.raises(ValueError) as exc_info:
+        controller.excluir_produtor(999)  # ID inexistente
+    assert str(exc_info.value) == "Erro: Produtor não encontrado"
 def test_remover_registro_inexistente():
     resultado = controller.remover_registro(999, 1)  # ID do produtor inexistente
     assert resultado == "Erro: Registro não encontrado"

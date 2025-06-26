@@ -21,7 +21,7 @@ class Produtor:
         despesas: Propriedade para obter ou definir a lista de despesas.
     """
 
-    def __init__(self, id: int, nome: str, rebanho: Rebanho, receitas: list[Registro], despesas: list[Registro]):
+    def __init__(self, id: int, nome: str, rebanho: list[Rebanho], receitas: list[Registro], despesas: list[Registro]):
         self._id = id
         self._nome = nome
         self._rebanho = [Rebanho]  # Um produtor pode ter vários rebanhos, iniciando com uma lista
