@@ -3,21 +3,25 @@ from model.Rebanho import Rebanho
 from model.Registro import Registro
 
 class Controller:
+
     def __init__ (self):
         self.produtores = []
+   
     def buscar_produtor(self, id):
         """Busca um produtor pelo ID."""
         return next((produtor for produtor in self.produtores if produtor.id == id), None)
     
-    """Retorna uma lista com todos os produtores"""
     def listar_produtores(self):
         return list(self.produtores)
+    
     def listar_produtores_por_nome(self, nome):
         """Lista os produtores filtrados por nome."""
         return [produtor for produtor in self.produtores if nome.lower() in produtor.nome.lower()]
+    
     def listar_produtores_por_id(self, id):
         """Lista os produtores filtrados por ID."""
         return [produtor for produtor in self.produtores if produtor.id == id]
+    
     def criar_produtor(self, id, nome, rebanho=None, receitas=None, despesas=None):
         if id is None or not isinstance(id, int):
             raise ValueError("Erro: Dados inválidos para criar produtor")
@@ -68,3 +72,4 @@ class Controller:
         produtor.receitas = receitas if receitas is not None else []
         produtor.despesas = despesas if despesas is not None else []
         return True
+
